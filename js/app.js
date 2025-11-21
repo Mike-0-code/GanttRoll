@@ -26,10 +26,24 @@ function loadFromStorage() {
             if (projectData.currentStartDate) {
                 currentStartDate = new Date(projectData.currentStartDate);
             }
+
+            updateScaleButtons();
             
         } catch (error) {
             console.error('Error loading saved data:', error);
         }
+    }
+}
+
+// ===== FUNCIÓN PARA ACTUALIZAR BOTONES DE ESCALA =====
+function updateScaleButtons() {
+    document.querySelectorAll('.scale-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    const activeButton = document.querySelector(`[data-scale="${currentScale}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
     }
 }
 
@@ -248,8 +262,7 @@ function getWeekNumber(date) {
 // ===== FUNCIONES PRINCIPALES =====
 function changeScale(scale) {
     currentScale = scale;
-    document.querySelectorAll('.scale-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`[data-scale="${scale}"]`).classList.add('active');
+    updateScaleButtons();
     renderTimeline();
     saveToStorage();
 }
