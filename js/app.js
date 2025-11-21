@@ -12,7 +12,7 @@ let tasks = [
     { 
         id: 1, 
         name: "Diseño UI/UX", 
-        color: '#7e57c2',
+        color: '#6366f1',
         scaleStates: {
             days: { startOffset: 0, duration: 4 },
             weeks: { startOffset: 0, duration: 1 },
@@ -22,7 +22,7 @@ let tasks = [
     { 
         id: 2, 
         name: "Desarrollo Frontend", 
-        color: '#4caf50',
+        color: '#10b981',
         scaleStates: {
             days: { startOffset: 3, duration: 7 },
             weeks: { startOffset: 1, duration: 2 },
@@ -32,7 +32,7 @@ let tasks = [
     { 
         id: 3, 
         name: "Testing QA", 
-        color: '#ff9800',
+        color: '#f59e0b',
         scaleStates: {
             days: { startOffset: 8, duration: 3 },
             weeks: { startOffset: 2, duration: 1 },
@@ -41,7 +41,7 @@ let tasks = [
     }
 ];
 
-// Configuración de escalas - ELIMINAMOS unitWidth ya que ahora es responsive
+// Configuración de escalas
 const scales = {
     days: { 
         unit: 'day', 
@@ -184,7 +184,7 @@ function addTask() {
 }
 
 function getRandomColor() {
-    const colors = ['#7e57c2', '#4caf50', '#ff9800', '#f44336', '#2196f3', '#00bcd4'];
+    const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
     return colors[Math.floor(Math.random() * colors.length)];
 }
 
@@ -235,7 +235,6 @@ function renderTimeScale() {
     const container = document.getElementById('time-scale');
     container.innerHTML = '';
     container.style.display = 'flex';
-    // ELIMINADO: container.style.width - ahora usa width: 100% del CSS
 
     for (let i = 0; i < scale.unitsToShow; i++) {
         const date = new Date(currentStartDate);
@@ -249,7 +248,6 @@ function renderTimeScale() {
 
         const unit = document.createElement('div');
         unit.className = 'time-unit';
-        // ELIMINADO: unit.style.minWidth - ahora se ajusta automáticamente
         
         if (scale.unit === 'day') {
             unit.textContent = date.getDate();
@@ -302,7 +300,6 @@ function createTaskElement(task, index) {
 
     const barContainer = document.createElement('div');
     barContainer.className = 'task-bar-container';
-    // ELIMINADO: barContainer.style.width - ahora usa width: 100% del CSS
 
     const scaleState = task.scaleStates[currentScale];
     const startOffset = scaleState.startOffset;
@@ -497,43 +494,4 @@ function updateDateRangeDisplay() {
         const startWeek = getWeekNumber(currentStartDate);
         const endWeek = getWeekNumber(endDate);
         displayText = `S${startWeek} - S${endWeek}`;
-        timelineTitle = getMonthRangeTitle(currentStartDate, endDate);
-        
-    } else {
-        const endDate = new Date(currentStartDate);
-        endDate.setMonth(currentStartDate.getMonth() + scale.unitsToShow - 1);
-        
-        displayText = getCompactMonthRange(currentStartDate, endDate);
-        timelineTitle = `${currentStartDate.getFullYear()} - ${endDate.getFullYear()}`;
-    }
-
-    document.getElementById('current-range').textContent = displayText;
-    document.getElementById('timeline-title').textContent = timelineTitle;
-}
-
-function getCompactMonthRange(startDate, endDate) {
-    const startYear = startDate.getFullYear();
-    const endYear = endDate.getFullYear();
-    
-    if (startYear === endYear) {
-        const startMonth = startDate.toLocaleDateString('es-ES', { month: 'short' });
-        const endMonth = endDate.toLocaleDateString('es-ES', { month: 'short' });
-        return `${startMonth} - ${endMonth} ${startYear}`;
-    } else {
-        const startStr = startDate.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
-        const endStr = endDate.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
-        return `${startStr} - ${endStr}`;
-    }
-}
-
-function getMonthRangeTitle(startDate, endDate) {
-    if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
-        return startDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-    } else {
-        return `${startDate.toLocaleDateString('es-ES', { month: 'long' })} - ${endDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-    }
-}
-
-function formatDate(date) {
-    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-}
+        timelineTitle = getMonthRangeTitle(currentStartDate,
