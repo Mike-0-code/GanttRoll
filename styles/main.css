@@ -113,11 +113,18 @@ button:hover {
 .time-scale-container {
     display: flex;
     margin-bottom: 10px;
+    /* CORRECCIÓN: Eliminar cualquier padding/margin que afecte el ancho */
+    padding: 0;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .time-scale-spacer {
-    width: 265px;
+    width: 265px; /* Mismo ancho que área de títulos + gap */
     flex-shrink: 0;
+    /* CORRECCIÓN: Asegurar que no tenga padding/margin */
+    padding: 0;
+    margin: 0;
 }
 
 .time-scale {
@@ -125,8 +132,11 @@ button:hover {
     height: 40px;
     background: #3d3d3d;
     border-radius: 8px;
-    flex: 1;
     position: relative;
+    /* CORRECCIÓN: El ancho se establece en JS, pero asegurar box-sizing */
+    box-sizing: content-box;
+    /* CORRECCIÓN: Eliminar flex:1 que podría causar discrepancias */
+    flex: none;
 }
 
 .time-unit {
@@ -138,6 +148,8 @@ button:hover {
     font-size: 0.9em;
     min-width: 60px;
     position: relative;
+    /* CORRECCIÓN: Asegurar box-sizing consistente */
+    box-sizing: border-box;
 }
 
 .time-unit:last-child {
@@ -164,6 +176,9 @@ button:hover {
     gap: 15px;
     align-items: center;
     min-height: 60px;
+    /* CORRECCIÓN: Asegurar que no haya padding/margin extra */
+    padding: 0;
+    margin: 0;
 }
 
 .task-row.dragging-vertical {
@@ -264,6 +279,11 @@ button:hover {
     border-radius: 8px;
     overflow: visible;
     border-left: 2px solid #404040;
+    /* CORRECCIÓN CRÍTICA: Mismo box-sizing y sin padding/margin */
+    box-sizing: content-box;
+    padding: 0;
+    margin: 0;
+    /* El ancho se establece en JS para coincidir exactamente con time-scale */
 }
 
 .task-bar {
@@ -282,6 +302,8 @@ button:hover {
     user-select: none;
     min-width: 20px;
     left: 0;
+    /* CORRECCIÓN: Asegurar box-sizing */
+    box-sizing: border-box;
 }
 
 .task-bar:hover {
@@ -404,4 +426,9 @@ button:hover {
 
 .modal-btn.delete:hover {
     background: #d32f2f;
+}
+
+/* CORRECCIÓN ADICIONAL: Asegurar que el contenedor principal no añada espacio extra */
+.gantt-timeline > * {
+    box-sizing: border-box;
 }
