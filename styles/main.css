@@ -315,7 +315,7 @@ body.light-theme .color-picker::-webkit-color-swatch {
 
 .scale-btn.active {
     background: var(--accent-primary);
-    color: var(--text-primary);
+    color: white;
 }
 
 .primary-btn {
