@@ -87,6 +87,31 @@ function getUnitWidth() {
 
 // Inicialización de eventos
 document.addEventListener('DOMContentLoaded', function() {
+
+    // Configurar el toggle de tema
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    // Cargar tema guardado
+    const savedTheme = localStorage.getItem('ganttroll-theme');
+    if (savedTheme === 'light') {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+        themeToggle.checked = true;
+    }
+    
+    // Event listener para cambio de tema
+    themeToggle.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            document.body.classList.remove('dark-theme');
+            document.body.classList.add('light-theme');
+            localStorage.setItem('ganttroll-theme', 'light');
+        } else {
+            document.body.classList.remove('light-theme');
+            document.body.classList.add('dark-theme');
+            localStorage.setItem('ganttroll-theme', 'dark');
+        }
+    });
+    
     // Event listeners para botones
     document.getElementById('add-task-btn').addEventListener('click', addTask);
     document.getElementById('prev-date-btn').addEventListener('click', () => changeDateRange(-1));
@@ -107,6 +132,48 @@ document.addEventListener('DOMContentLoaded', function() {
     
     renderTimeline();
 });
+
+// ===== INFORMACIÓN DE ALMACENAMIENTO =====
+function setupInfoTooltip() {
+    const infoBtn = document.querySelector('.info-btn');
+    const tooltip = document.createElement('div');
+    
+    tooltip.className = 'info-tooltip';
+    tooltip.innerHTML = `
+        <div class="tooltip-title">Almacenamiento Local</div>
+        <div class="tooltip-text">
+            Tus tareas se guardan automáticamente en este navegador. 
+            Si limpias el historial o cambias de navegador, se reiniciará el tablero.
+        </div>
+        <div class="tooltip-note">
+            Solo visible para ti en este dispositivo
+        </div>
+    `;
+    
+    document.querySelector('.header-actions').appendChild(tooltip);
+    
+    let hideTimeout;
+    
+    infoBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tooltip.classList.toggle('show');
+    });
+    
+    // Cerrar al hacer click fuera
+    document.addEventListener('click', () => {
+        tooltip.classList.remove('show');
+    });
+    
+    // Cerrar con ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            tooltip.classList.remove('show');
+        }
+    });
+}
+
+// Y llamar la función en DOMContentLoaded:
+// setupInfoTooltip();
 
 // Función corregida para cálculo de semanas ISO
 function getWeekNumber(date) {
