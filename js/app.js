@@ -1,4 +1,4 @@
-// Estado global de la aplicación
+// ===== ESTADO GLOBAL =====
 let currentScale = 'days';
 let currentStartDate = new Date();
 let draggingTaskId = null;
@@ -72,47 +72,43 @@ const scales = {
     }
 };
 
-// Función para obtener el ancho real del contenedor de escala
-function getScaleContainerWidth() {
-    const timeScale = document.getElementById('time-scale');
-    return timeScale ? timeScale.offsetWidth : 0;
-}
-
-// Función para calcular el ancho de unidad basado en el ancho real del contenedor
-function getUnitWidth() {
-    const scale = scales[currentScale];
-    const containerWidth = getScaleContainerWidth();
-    return containerWidth / scale.unitsToShow;
-}
-
-// Inicialización de eventos
+// ===== INICIALIZACIÓN =====
 document.addEventListener('DOMContentLoaded', function() {
+    initializeTheme();
+    setupEventListeners();
+    setupInfoTooltip(); // Descomenta si quieres usar el tooltip
+    renderTimeline();
+});
 
-    // Configurar el toggle de tema
+// ===== GESTIÓN DE TEMA =====
+function initializeTheme() {
     const themeToggle = document.getElementById('theme-toggle');
-    
-    // Cargar tema guardado
     const savedTheme = localStorage.getItem('ganttroll-theme');
+    
     if (savedTheme === 'light') {
         document.body.classList.remove('dark-theme');
         document.body.classList.add('light-theme');
         themeToggle.checked = true;
     }
     
-    // Event listener para cambio de tema
-    themeToggle.addEventListener('change', (e) => {
-        if (e.target.checked) {
-            document.body.classList.remove('dark-theme');
-            document.body.classList.add('light-theme');
-            localStorage.setItem('ganttroll-theme', 'light');
-        } else {
-            document.body.classList.remove('light-theme');
-            document.body.classList.add('dark-theme');
-            localStorage.setItem('ganttroll-theme', 'dark');
-        }
-    });
-    
-    // Event listeners para botones
+    themeToggle.addEventListener('change', handleThemeChange);
+}
+
+function handleThemeChange(e) {
+    if (e.target.checked) {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+        localStorage.setItem('ganttroll-theme', 'light');
+    } else {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+        localStorage.setItem('ganttroll-theme', 'dark');
+    }
+}
+
+// ===== CONFIGURACIÓN DE EVENTOS =====
+function setupEventListeners() {
+    // Botones principales
     document.getElementById('add-task-btn').addEventListener('click', addTask);
     document.getElementById('prev-date-btn').addEventListener('click', () => changeDateRange(-1));
     document.getElementById('next-date-btn').addEventListener('click', () => changeDateRange(1));
@@ -120,18 +116,16 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('cancel-delete-btn').addEventListener('click', closeDeleteModal);
     document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
     
-    // Event listeners para botones de escala
+    // Botones de escala
     document.querySelectorAll('.scale-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             changeScale(e.target.dataset.scale);
         });
     });
 
-    // Redibujar cuando cambia el tamaño de la ventana
+    // Redibujar en resize
     window.addEventListener('resize', renderTimeline);
-    
-    renderTimeline();
-});
+}
 
 // ===== INFORMACIÓN DE ALMACENAMIENTO =====
 function setupInfoTooltip() {
@@ -152,30 +146,35 @@ function setupInfoTooltip() {
     
     document.querySelector('.header-actions').appendChild(tooltip);
     
-    let hideTimeout;
-    
     infoBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         tooltip.classList.toggle('show');
     });
     
-    // Cerrar al hacer click fuera
-    document.addEventListener('click', () => {
-        tooltip.classList.remove('show');
-    });
-    
-    // Cerrar con ESC
+    // Cerrar tooltip
+    document.addEventListener('click', () => tooltip.classList.remove('show'));
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            tooltip.classList.remove('show');
-        }
+        if (e.key === 'Escape') tooltip.classList.remove('show');
     });
 }
 
-// Y llamar la función en DOMContentLoaded:
-// setupInfoTooltip();
+// ===== UTILIDADES =====
+function getScaleContainerWidth() {
+    const timeScale = document.getElementById('time-scale');
+    return timeScale ? timeScale.offsetWidth : 0;
+}
 
-// Función corregida para cálculo de semanas ISO
+function getUnitWidth() {
+    const scale = scales[currentScale];
+    const containerWidth = getScaleContainerWidth();
+    return containerWidth / scale.unitsToShow;
+}
+
+function getRandomColor() {
+    const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
 function getWeekNumber(date) {
     const target = new Date(date.valueOf());
     const dayNr = (date.getDay() + 6) % 7;
@@ -210,7 +209,7 @@ function getWeekNumber(date) {
     return weekNum;
 }
 
-// Funciones principales de la aplicación
+// ===== FUNCIONES PRINCIPALES =====
 function changeScale(scale) {
     currentScale = scale;
     document.querySelectorAll('.scale-btn').forEach(btn => btn.classList.remove('active'));
@@ -250,11 +249,6 @@ function addTask() {
     renderTimeline();
 }
 
-function getRandomColor() {
-    const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
-    return colors[Math.floor(Math.random() * colors.length)];
-}
-
 function updateTaskColor(taskId, color) {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
@@ -290,7 +284,14 @@ function handleTaskNameInput(event, taskId) {
     }
 }
 
-// Sistema de renderizado
+function handleTaskNameKeydown(event, taskId) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        event.target.blur();
+    }
+}
+
+// ===== SISTEMA DE RENDERIZADO =====
 function renderTimeline() {
     renderTimeScale();
     renderTasks();
@@ -362,25 +363,20 @@ function createTaskElement(task, index) {
         <button class="delete-btn" onclick="openDeleteModal(${task.id})">×</button>
     `;
 
-    const dragHandle = taskInfo.querySelector('.drag-handle');
-    setupVerticalDrag(dragHandle, task, row);
+    setupVerticalDrag(taskInfo.querySelector('.drag-handle'), task, row);
 
     const barContainer = document.createElement('div');
     barContainer.className = 'task-bar-container';
 
     const scaleState = task.scaleStates[currentScale];
-    const startOffset = scaleState.startOffset;
-    const duration = scaleState.duration;
-
+    const unitWidth = getUnitWidth();
+    
     const taskBar = document.createElement('div');
     taskBar.className = 'task-bar';
     taskBar.textContent = task.name;
     taskBar.style.background = task.color;
-    
-    // CALCULAR POSICIÓN Y ANCHO USANDO EL ANCHO REAL
-    const unitWidth = getUnitWidth();
-    taskBar.style.left = `${startOffset * unitWidth}px`;
-    taskBar.style.width = `${duration * unitWidth}px`;
+    taskBar.style.left = `${scaleState.startOffset * unitWidth}px`;
+    taskBar.style.width = `${scaleState.duration * unitWidth}px`;
 
     const rightHandle = document.createElement('div');
     rightHandle.className = 'resize-handle right';
@@ -396,14 +392,7 @@ function createTaskElement(task, index) {
     return row;
 }
 
-function handleTaskNameKeydown(event, taskId) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        event.target.blur();
-    }
-}
-
-// Sistema de eliminación de tareas
+// ===== SISTEMA DE ELIMINACIÓN =====
 function openDeleteModal(taskId) {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
@@ -427,7 +416,7 @@ function confirmDelete() {
     }
 }
 
-// Sistema de drag & drop
+// ===== DRAG & DROP =====
 function setupVerticalDrag(dragHandle, task, row) {
     dragHandle.addEventListener('dragstart', (e) => {
         draggingTaskId = task.id;
@@ -541,7 +530,7 @@ function startResize(e, task, direction) {
     document.addEventListener('mouseup', onMouseUp);
 }
 
-// Sistema de visualización de fechas
+// ===== VISUALIZACIÓN DE FECHAS =====
 function updateDateRangeDisplay() {
     const scale = scales[currentScale];
     let displayText = '';
