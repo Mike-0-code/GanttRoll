@@ -218,14 +218,6 @@ body.light-theme .date-display {
     background: var(--bg-tertiary);
 }
 
-body.light-theme .primary-btn {
-    background: var(--accent-primary);
-}
-
-body.light-theme .primary-btn:hover {
-    background: var(--accent-hover);
-}
-
 body.light-theme .nav-btn,
 body.light-theme .secondary-btn {
     background: var(--bg-tertiary);
@@ -328,7 +320,7 @@ body.light-theme .color-picker::-webkit-color-swatch {
 
 .primary-btn {
     background: var(--accent-primary);
-    color: var(--text-primary);
+    color: white;
     border: none;
     padding: 10px 20px;
     border-radius: var(--border-radius);
@@ -339,6 +331,7 @@ body.light-theme .color-picker::-webkit-color-swatch {
 
 .primary-btn:hover {
     background: var(--accent-hover);
+    color: white;
 }
 
 .date-navigation {
