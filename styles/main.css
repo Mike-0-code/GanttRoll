@@ -413,6 +413,7 @@ body.light-theme .color-picker::-webkit-color-swatch {
     position: relative;
     flex: 1;
     width: 100%;
+    padding-left: 8px;
 }
 
 .time-unit {
