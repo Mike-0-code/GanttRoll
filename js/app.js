@@ -4,6 +4,7 @@ function saveToStorage() {
         tasks: tasks,
         currentScale: currentScale,
         currentStartDate: currentStartDate.toISOString(),
+        projectName: projectName,
         version: '1.0'
     };
     localStorage.setItem('ganttroll-data', JSON.stringify(projectData));
@@ -27,7 +28,13 @@ function loadFromStorage() {
                 currentStartDate = new Date(projectData.currentStartDate);
             }
 
+            if (projectData.projectName) {
+                projectName = projectData.projectName;
+                document.getElementById('project-name-input').innerText = projectName;
+            }
+
             updateScaleButtons();
+            updateProjectCharCounter();
             
         } catch (error) {
             console.error('Error loading saved data:', error);
@@ -52,6 +59,7 @@ let currentScale = 'days';
 let currentStartDate = new Date();
 let draggingTaskId = null;
 let taskToDelete = null;
+let projectName = "Mi Proyecto";
 
 // Ajustar al inicio de la semana (lunes)
 currentStartDate.setDate(currentStartDate.getDate() - currentStartDate.getDay() + 1);
@@ -166,6 +174,12 @@ function setupEventListeners() {
     document.getElementById('cancel-delete-btn').addEventListener('click', closeDeleteModal);
     document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
     
+    const projectNameInput = document.getElementById('project-name-input');
+    projectNameInput.addEventListener('blur', updateProjectName);
+    projectNameInput.addEventListener('keydown', handleProjectNameKeydown);
+    projectNameInput.addEventListener('input', handleProjectNameInput);
+
+    
     // Botones de escala
     document.querySelectorAll('.scale-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -175,6 +189,52 @@ function setupEventListeners() {
 
     // Redibujar en resize
     window.addEventListener('resize', renderTimeline);
+}
+
+// ===== GESTIÓN DEL NOMBRE DEL PROYECTO =====
+function updateProjectName() {
+    const projectNameInput = document.getElementById('project-name-input');
+    const newName = projectNameInput.innerText.trim();
+    
+    if (newName !== '') {
+        projectName = newName;
+        saveToStorage();
+        updateProjectCharCounter();
+    } else {
+        // Si está vacío, restaurar el nombre anterior
+        projectNameInput.innerText = projectName;
+    }
+}
+
+function handleProjectNameInput(event) {
+    const maxLength = 50;
+    const currentLength = event.target.innerText.length;
+    const counter = document.querySelector('.project-char-counter');
+    
+    counter.textContent = `${currentLength}/${maxLength}`;
+    
+    if (currentLength >= maxLength && event.inputType === 'insertText') {
+        event.preventDefault();
+        event.target.innerText = event.target.innerText.substring(0, maxLength);
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(event.target);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+}
+
+function handleProjectNameKeydown(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        event.target.blur();
+    }
+}
+
+function updateProjectCharCounter() {
+    const counter = document.querySelector('.project-char-counter');
+    counter.textContent = `${projectName.length}/50`;
 }
 
 // ===== INFORMACIÓN DE ALMACENAMIENTO =====
