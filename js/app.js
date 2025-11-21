@@ -98,6 +98,86 @@ let tasks = [
     }
 ];
 
+// ===== REINICIO TOTAL =====
+function openResetModal() {
+    document.getElementById('reset-modal').style.display = 'flex';
+}
+
+function closeResetModal() {
+    document.getElementById('reset-modal').style.display = 'none';
+}
+
+function confirmReset() {
+    // 1. REINICIAR ESTADO GLOBAL
+    tasks = [
+        { 
+            id: 1, 
+            name: "Diseño UI/UX", 
+            color: '#6366f1',
+            scaleStates: {
+                days: { startOffset: 0, duration: 4 },
+                weeks: { startOffset: 0, duration: 1 },
+                months: { startOffset: 0, duration: 1 }
+            }
+        },
+        { 
+            id: 2, 
+            name: "Desarrollo Frontend", 
+            color: '#10b981',
+            scaleStates: {
+                days: { startOffset: 3, duration: 7 },
+                weeks: { startOffset: 1, duration: 2 },
+                months: { startOffset: 0, duration: 1 }
+            }
+        },
+        { 
+            id: 3, 
+            name: "Testing QA", 
+            color: '#f59e0b',
+            scaleStates: {
+                days: { startOffset: 8, duration: 3 },
+                weeks: { startOffset: 2, duration: 1 },
+                months: { startOffset: 0, duration: 1 }
+            }
+        }
+    ];
+    
+    projectName = "Mi Proyecto";
+    currentScale = 'days';
+    currentStartDate = new Date();
+    currentStartDate.setDate(currentStartDate.getDate() - currentStartDate.getDay() + 1);
+    
+    // 2. LIMPIAR LOCALSTORAGE
+    localStorage.removeItem('ganttroll-data');
+    
+    // 3. ACTUALIZAR INTERFAZ
+    document.getElementById('project-name-input').innerText = projectName;
+    updateProjectCharCounter();
+    updateScaleButtons();
+    
+    // 4. RENDERIZAR
+    renderTimeline();
+    
+    // 5. CERRAR MODAL
+    closeResetModal();
+}
+
+// Configurar event listeners del modal de reinicio
+function setupResetModal() {
+    document.getElementById('cancel-reset-btn').addEventListener('click', closeResetModal);
+    document.getElementById('confirm-reset-btn').addEventListener('click', confirmReset);
+    
+    document.getElementById('reset-modal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeResetModal();
+    });
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('reset-modal').style.display === 'flex') {
+            closeResetModal();
+        }
+    });
+}
+
 // Configuración de escalas
 const scales = {
     days: { 
@@ -278,7 +358,7 @@ function setupEventListeners() {
     document.getElementById('today-btn').addEventListener('click', goToToday);
     document.getElementById('cancel-delete-btn').addEventListener('click', closeDeleteModal);
     document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
-    
+    setupResetModal();
     const projectNameInput = document.getElementById('project-name-input');
     projectNameInput.addEventListener('blur', updateProjectName);
     projectNameInput.addEventListener('keydown', handleProjectNameKeydown);
