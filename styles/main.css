@@ -659,17 +659,17 @@ body.light-theme .color-picker::-webkit-color-swatch {
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 1000;
     backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-content {
     background-color: var(--bg-secondary);
-    margin: 5% auto;
     padding: var(--spacing-lg);
     border-radius: var(--border-radius-lg);
     width: 90%;
     max-width: 400px;
     border: 1px solid var(--border-color);
-    position: relative;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
