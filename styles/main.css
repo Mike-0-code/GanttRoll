@@ -1,0 +1,407 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #1a1a1a;
+    color: white;
+    padding: 20px;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: 5px;
+    background: linear-gradient(90deg, #7e57c2, #4caf50);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.header p {
+    color: #b0b0b0;
+}
+
+.controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.scale-selector {
+    display: flex;
+    gap: 5px;
+    background: #2d2d2d;
+    padding: 5px;
+    border-radius: 8px;
+}
+
+.scale-btn {
+    padding: 8px 16px;
+    background: transparent;
+    border: none;
+    color: #b0b0b0;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.scale-btn.active {
+    background: #7e57c2;
+    color: white;
+}
+
+button {
+    background: #7e57c2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+button:hover {
+    background: #6d48ab;
+}
+
+.date-navigation {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.date-display {
+    padding: 8px 16px;
+    background: #3d3d3d;
+    border-radius: 6px;
+    font-weight: 500;
+    min-width: 200px;
+    text-align: center;
+}
+
+.gantt-timeline {
+    background: #2d2d2d;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+.timeline-header {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.time-scale-container {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.time-scale-spacer {
+    width: 265px;
+    flex-shrink: 0;
+}
+
+.time-scale {
+    display: flex;
+    height: 40px;
+    background: #3d3d3d;
+    border-radius: 8px;
+    flex: 1;
+    position: relative;
+}
+
+.time-unit {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #404040;
+    font-size: 0.9em;
+    min-width: 60px;
+    position: relative;
+}
+
+.time-unit:last-child {
+    border-right: none;
+}
+
+.time-unit.marker {
+    background: rgba(126, 87, 194, 0.1);
+}
+
+.time-unit.weekend {
+    background: rgba(244, 67, 54, 0.1);
+}
+
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.task-row {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 15px;
+    align-items: center;
+    min-height: 60px;
+}
+
+.task-row.dragging-vertical {
+    opacity: 0.5;
+}
+
+.task-row.drop-zone {
+    background: rgba(126, 87, 194, 0.1);
+    border-radius: 8px;
+}
+
+.task-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #3d3d3d;
+    border-radius: 8px;
+    position: relative;
+}
+
+.drag-handle {
+    cursor: grab;
+    color: #b0b0b0;
+    padding: 5px;
+    user-select: none;
+    font-size: 16px;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.drag-handle:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.task-name {
+    font-weight: 500;
+    flex: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    cursor: text;
+}
+
+.task-name:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    cursor: text;
+}
+
+.char-counter {
+    font-size: 0.7em;
+    color: #b0b0b0;
+    position: absolute;
+    right: 40px;
+    bottom: 2px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 1px 4px;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.task-name:focus + .char-counter {
+    opacity: 1;
+}
+
+.delete-btn {
+    background: transparent;
+    color: #b0b0b0;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-btn:hover {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+.task-bar-container {
+    position: relative;
+    height: 50px;
+    background: #3d3d3d;
+    border-radius: 8px;
+    overflow: visible;
+    border-left: 2px solid #404040;
+}
+
+.task-bar {
+    position: absolute;
+    height: 36px;
+    border-radius: 8px;
+    margin: 7px 0;
+    cursor: grab;
+    transition: all 0.1s ease;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    font-size: 0.9em;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    user-select: none;
+    min-width: 20px;
+    left: 0;
+}
+
+.task-bar:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.task-bar.dragging {
+    cursor: grabbing;
+    opacity: 0.9;
+}
+
+.resize-handle {
+    position: absolute;
+    width: 12px;
+    height: 100%;
+    top: 0;
+    cursor: col-resize;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+}
+
+.resize-handle.right {
+    right: -6px;
+}
+
+.task-bar:hover .resize-handle {
+    opacity: 1;
+}
+
+.resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 2px;
+}
+
+.color-picker {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.color-picker::-webkit-color-swatch {
+    border: 2px solid #404040;
+    border-radius: 6px;
+}
+
+/* Modal de confirmación */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #2d2d2d;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.modal h2 {
+    margin-bottom: 15px;
+    color: #fff;
+    font-size: 1.5em;
+}
+
+.modal p {
+    margin-bottom: 25px;
+    color: #b0b0b0;
+    line-height: 1.5;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.modal-btn.cancel {
+    background: #3d3d3d;
+    color: white;
+}
+
+.modal-btn.cancel:hover {
+    background: #4d4d4d;
+}
+
+.modal-btn.delete {
+    background: #f44336;
+    color: white;
+}
+
+.modal-btn.delete:hover {
+    background: #d32f2f;
+}
