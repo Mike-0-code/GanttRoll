@@ -181,6 +181,62 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
+/* ===== NOMBRE DEL PROYECTO ===== */
+.project-name-container {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+.project-name-label {
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.project-name-input {
+    flex: 1;
+    padding: 8px 12px;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    cursor: text;
+    min-height: 20px;
+    outline: none;
+}
+
+.project-name-input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-primary);
+}
+
+.project-char-counter {
+    position: absolute;
+    right: 12px;
+    bottom: 4px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.7);
+    padding: 1px 4px;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.project-name-input:focus + .project-char-counter {
+    opacity: 1;
+}
+
 /* ===== TEMA CLARO ===== */
 body.light-theme {
     --bg-primary: #fafafa;
@@ -275,6 +331,19 @@ body.light-theme .task-name:focus {
 
 body.light-theme .color-picker::-webkit-color-swatch {
     border: 1px solid var(--border-color);
+}
+
+/* Tema claro para el nombre del proyecto */
+body.light-theme .project-name-container {
+    background: var(--bg-tertiary);
+}
+
+body.light-theme .project-name-input:focus {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .project-char-counter {
+    background: rgba(0, 0, 0, 0.1);
 }
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
