@@ -641,12 +641,6 @@ body.light-theme .project-char-counter {
     overflow: hidden;
 }
 
-/* Estilo para el display temporal del color */
-.color-display {
-    flex-shrink: 0;
-    cursor: default;
-}
-
 .color-picker::-webkit-color-swatch {
     border: 1px solid var(--border-color);
     border-radius: 4px;
