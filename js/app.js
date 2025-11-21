@@ -41,12 +41,11 @@ let tasks = [
     }
 ];
 
-// Configuración de escalas
+// Configuración de escalas - ELIMINAMOS unitWidth ya que ahora es responsive
 const scales = {
     days: { 
         unit: 'day', 
-        unitsToShow: 14, 
-        unitWidth: 60,
+        unitsToShow: 14,
         navigate: (date, direction) => {
             const newDate = new Date(date);
             newDate.setDate(date.getDate() + (direction * 14));
@@ -55,8 +54,7 @@ const scales = {
     },
     weeks: { 
         unit: 'week', 
-        unitsToShow: 8, 
-        unitWidth: 80,
+        unitsToShow: 8,
         navigate: (date, direction) => {
             const newDate = new Date(date);
             newDate.setDate(date.getDate() + (direction * 56));
@@ -65,8 +63,7 @@ const scales = {
     },
     months: { 
         unit: 'month', 
-        unitsToShow: 6, 
-        unitWidth: 120,
+        unitsToShow: 6,
         navigate: (date, direction) => {
             const newDate = new Date(date);
             newDate.setMonth(date.getMonth() + (direction * 6));
@@ -74,6 +71,19 @@ const scales = {
         }
     }
 };
+
+// Función para obtener el ancho real del contenedor de escala
+function getScaleContainerWidth() {
+    const timeScale = document.getElementById('time-scale');
+    return timeScale ? timeScale.offsetWidth : 0;
+}
+
+// Función para calcular el ancho de unidad basado en el ancho real del contenedor
+function getUnitWidth() {
+    const scale = scales[currentScale];
+    const containerWidth = getScaleContainerWidth();
+    return containerWidth / scale.unitsToShow;
+}
 
 // Inicialización de eventos
 document.addEventListener('DOMContentLoaded', function() {
@@ -91,6 +101,9 @@ document.addEventListener('DOMContentLoaded', function() {
             changeScale(e.target.dataset.scale);
         });
     });
+
+    // Redibujar cuando cambia el tamaño de la ventana
+    window.addEventListener('resize', renderTimeline);
     
     renderTimeline();
 });
@@ -222,7 +235,7 @@ function renderTimeScale() {
     const container = document.getElementById('time-scale');
     container.innerHTML = '';
     container.style.display = 'flex';
-    container.style.width = `${scale.unitsToShow * scale.unitWidth}px`;
+    // ELIMINADO: container.style.width - ahora usa width: 100% del CSS
 
     for (let i = 0; i < scale.unitsToShow; i++) {
         const date = new Date(currentStartDate);
@@ -236,7 +249,7 @@ function renderTimeScale() {
 
         const unit = document.createElement('div');
         unit.className = 'time-unit';
-        unit.style.minWidth = `${scale.unitWidth}px`;
+        // ELIMINADO: unit.style.minWidth - ahora se ajusta automáticamente
         
         if (scale.unit === 'day') {
             unit.textContent = date.getDate();
@@ -289,7 +302,7 @@ function createTaskElement(task, index) {
 
     const barContainer = document.createElement('div');
     barContainer.className = 'task-bar-container';
-    barContainer.style.width = `${scale.unitsToShow * scale.unitWidth}px`;
+    // ELIMINADO: barContainer.style.width - ahora usa width: 100% del CSS
 
     const scaleState = task.scaleStates[currentScale];
     const startOffset = scaleState.startOffset;
@@ -299,8 +312,11 @@ function createTaskElement(task, index) {
     taskBar.className = 'task-bar';
     taskBar.textContent = task.name;
     taskBar.style.background = task.color;
-    taskBar.style.left = `${startOffset * scale.unitWidth}px`;
-    taskBar.style.width = `${duration * scale.unitWidth}px`;
+    
+    // CALCULAR POSICIÓN Y ANCHO USANDO EL ANCHO REAL
+    const unitWidth = getUnitWidth();
+    taskBar.style.left = `${startOffset * unitWidth}px`;
+    taskBar.style.width = `${duration * unitWidth}px`;
 
     const rightHandle = document.createElement('div');
     rightHandle.className = 'resize-handle right';
@@ -402,6 +418,7 @@ function setupTaskDrag(element, task) {
         if (e.target.classList.contains('resize-handle')) return;
         
         startX = e.clientX;
+        const unitWidth = getUnitWidth();
         startLeft = parseInt(element.style.left);
         element.classList.add('dragging');
 
@@ -410,9 +427,9 @@ function setupTaskDrag(element, task) {
             const scale = scales[currentScale];
             const scaleState = task.scaleStates[currentScale];
             
-            const maxLeft = (scale.unitsToShow - scaleState.duration) * scale.unitWidth;
+            const maxLeft = (scale.unitsToShow - scaleState.duration) * unitWidth;
             const newLeft = Math.max(0, Math.min(maxLeft, startLeft + deltaX));
-            const newStartOffset = newLeft / scale.unitWidth;
+            const newStartOffset = newLeft / unitWidth;
             
             task.scaleStates[currentScale].startOffset = newStartOffset;
             renderTimeline();
@@ -439,7 +456,8 @@ function startResize(e, task, direction) {
 
     function onMouseMove(e) {
         const deltaX = e.clientX - startX;
-        const deltaUnits = deltaX / scale.unitWidth;
+        const unitWidth = getUnitWidth();
+        const deltaUnits = deltaX / unitWidth;
 
         if (direction === 'right') {
             const maxDuration = scale.unitsToShow - startOffset;
