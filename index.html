@@ -8,6 +8,7 @@
     <meta name="keywords" content="gantt, diagrama, proyectos, tareas, organización, productividad, gestión de proyectos">
     <meta name="author" content="Mike-0-code">
     <link rel="stylesheet" href="styles/main.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body class="dark-theme">
     <!-- Barra superior -->
@@ -16,6 +17,9 @@
         <div class="header-actions">
             <button class="info-btn" aria-label="Información de almacenamiento" title="Información de almacenamiento">
                 ⓘ
+            </button>
+            <button class="export-btn" onclick="exportToPNG()" title="Exportar diagrama a PNG">
+            Exportar PNG
             </button>
             <div class="theme-switch">
                 <label class="switch">
