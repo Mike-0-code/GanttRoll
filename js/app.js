@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
     renderTimeline();
 });
 
-// ===== EXPORTACIÓN A PNG =====
+// ===== Exportar a PNG =====
 async function exportToPNG() {
     const exportBtn = document.querySelector('.export-btn');
     const originalText = exportBtn.innerHTML;
@@ -149,36 +149,70 @@ async function exportToPNG() {
         exportBtn.classList.add('exporting');
         exportBtn.innerHTML = '⏳ Generando...';
         
-        // Crear el clon del diagrama
+        // 1. OCULTAR inputs de color temporalmente
+        hideColorInputs();
+        
+        // 2. Crear el clon del diagrama
         const clone = await createExpandedClone();
         
-        // Generar la imagen
+        // 3. Generar la imagen
         const canvas = await html2canvas(clone, {
             backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg-secondary'),
-            scale: 2, // Mejor calidad
+            scale: 2,
             useCORS: true,
             allowTaint: true,
             logging: false
         });
         
-        // Convertir a PNG y descargar
+        // 4. Convertir a PNG y descargar
         const link = document.createElement('a');
         link.download = `GanttRoll-${projectName}-${new Date().toISOString().split('T')[0]}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
         
-        // Limpiar
+        // 5. Limpiar
         document.body.removeChild(clone);
         
     } catch (error) {
         console.error('Error al exportar:', error);
         alert('Error al generar la imagen. Intenta nuevamente.');
     } finally {
+        // 6. RESTAURAR inputs de color
+        showColorInputs();
+        
         // Restaurar botón
         exportBtn.disabled = false;
         exportBtn.classList.remove('exporting');
         exportBtn.innerHTML = originalText;
     }
+}
+
+function hideColorInputs() {
+    // Ocultar todos los inputs de color y mostrar un div con el color
+    document.querySelectorAll('.color-picker').forEach(input => {
+        const color = input.value;
+        const colorDisplay = document.createElement('div');
+        colorDisplay.className = 'color-display';
+        colorDisplay.style.width = '30px';
+        colorDisplay.style.height = '30px';
+        colorDisplay.style.backgroundColor = color;
+        colorDisplay.style.borderRadius = '6px';
+        colorDisplay.style.border = '2px solid #404040';
+        
+        input.style.display = 'none';
+        input.parentNode.insertBefore(colorDisplay, input);
+    });
+}
+
+function showColorInputs() {
+    // Remover los displays de color y mostrar los inputs nuevamente
+    document.querySelectorAll('.color-display').forEach(display => {
+        display.remove();
+    });
+    
+    document.querySelectorAll('.color-picker').forEach(input => {
+        input.style.display = 'block';
+    });
 }
 
 function createExpandedClone() {
