@@ -192,6 +192,7 @@ input:checked + .slider:before {
     border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
     position: relative;
+    width: 100%;
 }
 
 .project-name-label {
@@ -207,12 +208,14 @@ input:checked + .slider:before {
     border: 2px solid transparent;
     border-radius: var(--border-radius);
     color: var(--text-primary);
-    font-weight: 500;
-    font-size: 1rem;
+    font-weight: 600;
+    font-size: 1.4rem;
     transition: all 0.2s ease;
     cursor: text;
     min-height: 20px;
     outline: none;
+    text-align: left;
+    width: 100%;
 }
 
 .project-name-input:focus {
@@ -222,8 +225,8 @@ input:checked + .slider:before {
 
 .project-char-counter {
     position: absolute;
-    right: 12px;
-    bottom: 4px;
+    right: 16px;
+    bottom: 8px;
     font-size: 0.7rem;
     color: var(--text-muted);
     background: rgba(0, 0, 0, 0.7);
@@ -844,4 +847,15 @@ body.light-theme .project-char-counter {
         width: 95%;
         padding: var(--spacing-md);
     }
+
+    .project-name-input {
+        font-size: 1.2rem;
+        padding: 10px 14px;
+    }
+    
+    .project-char-counter {
+        right: 14px;
+        bottom: 6px;
+    }
+}
 }
