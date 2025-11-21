@@ -1,59 +1,3 @@
-// ===== LOCALSTORAGE =====
-function saveToStorage() {
-    const projectData = {
-        tasks: tasks,
-        currentScale: currentScale,
-        currentStartDate: currentStartDate.toISOString(),
-        projectName: projectName,
-        version: '1.0'
-    };
-    localStorage.setItem('ganttroll-data', JSON.stringify(projectData));
-}
-
-function loadFromStorage() {
-    const saved = localStorage.getItem('ganttroll-data');
-    if (saved) {
-        try {
-            const projectData = JSON.parse(saved);
-            
-            if (projectData.tasks && Array.isArray(projectData.tasks)) {
-                tasks = projectData.tasks;
-            }
-            
-            if (projectData.currentScale && scales[projectData.currentScale]) {
-                currentScale = projectData.currentScale;
-            }
-            
-            if (projectData.currentStartDate) {
-                currentStartDate = new Date(projectData.currentStartDate);
-            }
-
-            if (projectData.projectName) {
-                projectName = projectData.projectName;
-                document.getElementById('project-name-input').innerText = projectName;
-            }
-
-            updateScaleButtons();
-            updateProjectCharCounter();
-            
-        } catch (error) {
-            console.error('Error loading saved data:', error);
-        }
-    }
-}
-
-// ===== FUNCIÓN PARA ACTUALIZAR BOTONES DE ESCALA =====
-function updateScaleButtons() {
-    document.querySelectorAll('.scale-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    const activeButton = document.querySelector(`[data-scale="${currentScale}"]`);
-    if (activeButton) {
-        activeButton.classList.add('active');
-    }
-}
-
 // ===== ESTADO GLOBAL =====
 let currentScale = 'days';
 let currentStartDate = new Date();
@@ -98,17 +42,128 @@ let tasks = [
     }
 ];
 
-// ===== REINICIO TOTAL =====
-function openResetModal() {
-    document.getElementById('reset-modal').style.display = 'flex';
+// Configuración de escalas
+const scales = {
+    days: { 
+        unit: 'day', 
+        unitsToShow: 14,
+        navigate: (date, direction) => {
+            const newDate = new Date(date);
+            newDate.setDate(date.getDate() + (direction * 14));
+            return newDate;
+        }
+    },
+    weeks: { 
+        unit: 'week', 
+        unitsToShow: 12,
+        navigate: (date, direction) => {
+            const newDate = new Date(date);
+            newDate.setDate(date.getDate() + (direction * 84));
+            return newDate;
+        }
+    },
+    months: { 
+        unit: 'month', 
+        unitsToShow: 6,
+        navigate: (date, direction) => {
+            const newDate = new Date(date);
+            newDate.setMonth(date.getMonth() + (direction * 6));
+            return newDate;
+        }
+    }
+};
+
+// ===== LOCALSTORAGE =====
+function saveToStorage() {
+    const projectData = {
+        tasks: tasks,
+        currentScale: currentScale,
+        currentStartDate: currentStartDate.toISOString(),
+        projectName: projectName,
+        version: '1.0'
+    };
+    localStorage.setItem('ganttroll-data', JSON.stringify(projectData));
 }
 
-function closeResetModal() {
-    document.getElementById('reset-modal').style.display = 'none';
+function loadFromStorage() {
+    const saved = localStorage.getItem('ganttroll-data');
+    if (saved) {
+        try {
+            const projectData = JSON.parse(saved);
+            
+            // Sanitizar datos cargados
+            const sanitizedData = sanitizeLoadedData(projectData);
+            
+            tasks = sanitizedData.tasks;
+            currentScale = sanitizedData.currentScale;
+            currentStartDate = sanitizedData.currentStartDate;
+            projectName = sanitizedData.projectName;
+
+            // Actualizar interfaz
+            document.getElementById('project-name-input').innerText = projectName;
+            updateScaleButtons();
+            updateProjectCharCounter();
+            
+        } catch (error) {
+            console.error('Error loading saved data:', error);
+            resetToDefault();
+        }
+    }
 }
 
-function confirmReset() {
-    // 1. REINICIAR ESTADO GLOBAL
+function sanitizeLoadedData(projectData) {
+    // Validar y limpiar todos los datos cargados
+    const sanitized = {
+        tasks: [],
+        currentScale: 'days',
+        currentStartDate: new Date(),
+        projectName: "Mi Proyecto"
+    };
+
+    // Validar tasks
+    if (projectData.tasks && Array.isArray(projectData.tasks)) {
+        sanitized.tasks = projectData.tasks.filter(task => 
+            task && 
+            task.id && 
+            task.name && 
+            task.color && 
+            task.scaleStates
+        );
+    }
+
+    // Validar escala
+    if (projectData.currentScale && scales[projectData.currentScale]) {
+        sanitized.currentScale = projectData.currentScale;
+    }
+
+    // Validar fecha
+    if (projectData.currentStartDate) {
+        const loadedDate = new Date(projectData.currentStartDate);
+        if (!isNaN(loadedDate.getTime())) {
+            sanitized.currentStartDate = loadedDate;
+        } else {
+            console.warn('Fecha inválida en almacenamiento, usando fecha actual');
+            sanitized.currentStartDate = new Date();
+            sanitized.currentStartDate.setDate(sanitized.currentStartDate.getDate() - sanitized.currentStartDate.getDay() + 1);
+        }
+    } else {
+        sanitized.currentStartDate = new Date();
+        sanitized.currentStartDate.setDate(sanitized.currentStartDate.getDate() - sanitized.currentStartDate.getDay() + 1);
+    }
+
+    // Validar nombre del proyecto
+    if (projectData.projectName && typeof projectData.projectName === 'string') {
+        sanitized.projectName = projectData.projectName.substring(0, 50);
+    }
+
+    return sanitized;
+}
+
+function resetToDefault() {
+    currentStartDate = new Date();
+    currentStartDate.setDate(currentStartDate.getDate() - currentStartDate.getDay() + 1);
+    currentScale = 'days';
+    projectName = "Mi Proyecto";
     tasks = [
         { 
             id: 1, 
@@ -141,73 +196,64 @@ function confirmReset() {
             }
         }
     ];
+}
+
+// ===== FUNCIÓN PARA ACTUALIZAR BOTONES DE ESCALA =====
+function updateScaleButtons() {
+    document.querySelectorAll('.scale-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
     
-    projectName = "Mi Proyecto";
-    currentScale = 'days';
-    currentStartDate = new Date();
-    currentStartDate.setDate(currentStartDate.getDate() - currentStartDate.getDay() + 1);
+    const activeButton = document.querySelector(`[data-scale="${currentScale}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
+}
+
+// ===== REINICIO TOTAL =====
+function openResetModal() {
+    document.getElementById('reset-modal').style.display = 'flex';
+}
+
+function closeResetModal() {
+    document.getElementById('reset-modal').style.display = 'none';
+}
+
+function confirmReset() {
+    resetToDefault();
     
-    // 2. LIMPIAR LOCALSTORAGE
+    // Limpiar localStorage
     localStorage.removeItem('ganttroll-data');
     
-    // 3. ACTUALIZAR INTERFAZ
+    // Actualizar interfaz
     document.getElementById('project-name-input').innerText = projectName;
     updateProjectCharCounter();
     updateScaleButtons();
     
-    // 4. RENDERIZAR
+    // Renderizar
     renderTimeline();
     
-    // 5. CERRAR MODAL
+    // Cerrar modal
     closeResetModal();
 }
 
-// Configurar event listeners del modal de reinicio
 function setupResetModal() {
+    const resetModal = document.getElementById('reset-modal');
+    if (!resetModal) return;
+    
     document.getElementById('cancel-reset-btn').addEventListener('click', closeResetModal);
     document.getElementById('confirm-reset-btn').addEventListener('click', confirmReset);
     
-    document.getElementById('reset-modal').addEventListener('click', (e) => {
+    resetModal.addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closeResetModal();
     });
     
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && document.getElementById('reset-modal').style.display === 'flex') {
+        if (e.key === 'Escape' && resetModal.style.display === 'flex') {
             closeResetModal();
         }
     });
 }
-
-// Configuración de escalas
-const scales = {
-    days: { 
-        unit: 'day', 
-        unitsToShow: 14,
-        navigate: (date, direction) => {
-            const newDate = new Date(date);
-            newDate.setDate(date.getDate() + (direction * 14));
-            return newDate;
-        }
-    },
-    weeks: { 
-        unit: 'week', 
-        unitsToShow: 12,
-        navigate: (date, direction) => {
-            const newDate = new Date(date);
-            newDate.setDate(date.getDate() + (direction * 84));
-            return newDate;
-        }
-    },
-    months: { 
-        unit: 'month', 
-        unitsToShow: 6,
-        navigate: (date, direction) => {
-            const newDate = new Date(date);
-            newDate.setMonth(date.getMonth() + (direction * 6));
-            return newDate;
-        }
-    }
-};
 
 // ===== INICIALIZACIÓN =====
 document.addEventListener('DOMContentLoaded', function() {
@@ -221,6 +267,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===== Exportar a PNG =====
 async function exportToPNG() {
     const exportBtn = document.querySelector('.export-btn');
+    if (!exportBtn) return;
+    
     const originalText = exportBtn.innerHTML;
     
     try {
@@ -234,6 +282,9 @@ async function exportToPNG() {
         
         // 2. Crear el clon del diagrama
         const clone = await createExpandedClone();
+        if (!clone) {
+            throw new Error('No se pudo crear el clon del diagrama');
+        }
         
         // 3. Generar la imagen
         const canvas = await html2canvas(clone, {
@@ -268,7 +319,6 @@ async function exportToPNG() {
 }
 
 function hideColorInputs() {
-    // Ocultar todos los inputs de color y mostrar un div con el color
     document.querySelectorAll('.color-picker').forEach(input => {
         const color = input.value;
         const colorDisplay = document.createElement('div');
@@ -285,7 +335,6 @@ function hideColorInputs() {
 }
 
 function showColorInputs() {
-    // Remover los displays de color y mostrar los inputs nuevamente
     document.querySelectorAll('.color-display').forEach(display => {
         display.remove();
     });
@@ -297,8 +346,12 @@ function showColorInputs() {
 
 function createExpandedClone() {
     return new Promise((resolve) => {
-        // Clonar el contenedor principal
         const original = document.querySelector('.gantt-timeline');
+        if (!original) {
+            resolve(null);
+            return;
+        }
+        
         const clone = original.cloneNode(true);
         
         // Estilos para expandir el clon
@@ -309,7 +362,7 @@ function createExpandedClone() {
         clone.style.height = 'auto';
         clone.style.overflow = 'visible';
         clone.style.zIndex = '-1000';
-        clone.style.opacity = '0.99'; // Para forzar renderizado
+        clone.style.opacity = '0.99';
         
         // Remover cualquier limitación de altura máxima
         clone.style.maxHeight = 'none';
@@ -326,6 +379,8 @@ function createExpandedClone() {
 // ===== GESTIÓN DE TEMA =====
 function initializeTheme() {
     const themeToggle = document.getElementById('theme-toggle');
+    if (!themeToggle) return;
+    
     const savedTheme = localStorage.getItem('ganttroll-theme');
     
     if (savedTheme === 'light') {
@@ -352,18 +407,28 @@ function handleThemeChange(e) {
 // ===== CONFIGURACIÓN DE EVENTOS =====
 function setupEventListeners() {
     // Botones principales
-    document.getElementById('add-task-btn').addEventListener('click', addTask);
-    document.getElementById('prev-date-btn').addEventListener('click', () => changeDateRange(-1));
-    document.getElementById('next-date-btn').addEventListener('click', () => changeDateRange(1));
-    document.getElementById('today-btn').addEventListener('click', goToToday);
-    document.getElementById('cancel-delete-btn').addEventListener('click', closeDeleteModal);
-    document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
-    setupResetModal();
+    const addTaskBtn = document.getElementById('add-task-btn');
+    const prevDateBtn = document.getElementById('prev-date-btn');
+    const nextDateBtn = document.getElementById('next-date-btn');
+    const todayBtn = document.getElementById('today-btn');
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
     const projectNameInput = document.getElementById('project-name-input');
-    projectNameInput.addEventListener('blur', updateProjectName);
-    projectNameInput.addEventListener('keydown', handleProjectNameKeydown);
-    projectNameInput.addEventListener('input', handleProjectNameInput);
-
+    
+    if (addTaskBtn) addTaskBtn.addEventListener('click', addTask);
+    if (prevDateBtn) prevDateBtn.addEventListener('click', () => changeDateRange(-1));
+    if (nextDateBtn) nextDateBtn.addEventListener('click', () => changeDateRange(1));
+    if (todayBtn) todayBtn.addEventListener('click', goToToday);
+    if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+    if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', confirmDelete);
+    
+    setupResetModal();
+    
+    if (projectNameInput) {
+        projectNameInput.addEventListener('blur', updateProjectName);
+        projectNameInput.addEventListener('keydown', handleProjectNameKeydown);
+        projectNameInput.addEventListener('input', handleProjectNameInput);
+    }
     
     // Botones de escala
     document.querySelectorAll('.scale-btn').forEach(btn => {
@@ -379,6 +444,8 @@ function setupEventListeners() {
 // ===== GESTIÓN DEL NOMBRE DEL PROYECTO =====
 function updateProjectName() {
     const projectNameInput = document.getElementById('project-name-input');
+    if (!projectNameInput) return;
+    
     const newName = projectNameInput.innerText.trim();
     
     if (newName !== '') {
@@ -396,7 +463,9 @@ function handleProjectNameInput(event) {
     const currentLength = event.target.innerText.length;
     const counter = document.querySelector('.project-char-counter');
     
-    counter.textContent = `${currentLength}/${maxLength}`;
+    if (counter) {
+        counter.textContent = `${currentLength}/${maxLength}`;
+    }
     
     if (currentLength >= maxLength && event.inputType === 'insertText') {
         event.preventDefault();
@@ -419,14 +488,19 @@ function handleProjectNameKeydown(event) {
 
 function updateProjectCharCounter() {
     const counter = document.querySelector('.project-char-counter');
-    counter.textContent = `${projectName.length}/50`;
+    if (counter) {
+        counter.textContent = `${projectName.length}/50`;
+    }
 }
 
 // ===== INFORMACIÓN DE ALMACENAMIENTO =====
 function setupInfoTooltip() {
     const infoBtn = document.querySelector('.info-btn');
-    const tooltip = document.createElement('div');
+    const headerActions = document.querySelector('.header-actions');
     
+    if (!infoBtn || !headerActions) return;
+    
+    const tooltip = document.createElement('div');
     tooltip.className = 'info-tooltip';
     tooltip.innerHTML = `
         <div class="tooltip-title">Almacenamiento Local</div>
@@ -439,7 +513,7 @@ function setupInfoTooltip() {
         </div>
     `;
     
-    document.querySelector('.header-actions').appendChild(tooltip);
+    headerActions.appendChild(tooltip);
     
     infoBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -447,7 +521,12 @@ function setupInfoTooltip() {
     });
     
     // Cerrar tooltip
-    document.addEventListener('click', () => tooltip.classList.remove('show'));
+    document.addEventListener('click', (e) => {
+        if (!tooltip.contains(e.target) && e.target !== infoBtn) {
+            tooltip.classList.remove('show');
+        }
+    });
+    
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') tooltip.classList.remove('show');
     });
@@ -456,7 +535,7 @@ function setupInfoTooltip() {
 // ===== UTILIDADES =====
 function getScaleContainerWidth() {
     const timeScale = document.getElementById('time-scale');
-    return timeScale ? timeScale.offsetWidth : 0;
+    return timeScale ? timeScale.offsetWidth : 600; // Valor por defecto
 }
 
 function getUnitWidth() {
@@ -506,10 +585,12 @@ function getWeekNumber(date) {
 
 // ===== FUNCIONES PRINCIPALES =====
 function changeScale(scale) {
-    currentScale = scale;
-    updateScaleButtons();
-    renderTimeline();
-    saveToStorage();
+    if (scales[scale]) {
+        currentScale = scale;
+        updateScaleButtons();
+        renderTimeline();
+        saveToStorage();
+    }
 }
 
 function changeDateRange(direction) {
@@ -570,7 +651,9 @@ function handleTaskNameInput(event, taskId) {
     const currentLength = event.target.innerText.length;
     const counter = event.target.nextElementSibling;
     
-    counter.textContent = `${currentLength}/${maxLength}`;
+    if (counter && counter.classList.contains('char-counter')) {
+        counter.textContent = `${currentLength}/${maxLength}`;
+    }
     
     if (currentLength >= maxLength && event.inputType === 'insertText') {
         event.preventDefault();
@@ -601,6 +684,8 @@ function renderTimeline() {
 function renderTimeScale() {
     const scale = scales[currentScale];
     const container = document.getElementById('time-scale');
+    if (!container) return;
+    
     container.innerHTML = '';
     container.style.display = 'flex';
 
@@ -634,6 +719,8 @@ function renderTimeScale() {
 
 function renderTasks() {
     const container = document.getElementById('tasks-container');
+    if (!container) return;
+    
     container.innerHTML = '';
 
     tasks.forEach((task, index) => {
@@ -695,16 +782,22 @@ function createTaskElement(task, index) {
 // ===== SISTEMA DE ELIMINACIÓN =====
 function openDeleteModal(taskId) {
     const task = tasks.find(t => t.id === taskId);
-    if (task) {
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteTaskName = document.getElementById('delete-task-name');
+    
+    if (task && deleteModal && deleteTaskName) {
         taskToDelete = taskId;
-        document.getElementById('delete-task-name').textContent = 
+        deleteTaskName.textContent = 
             `¿Estás seguro de que quieres eliminar la tarea "${task.name}"? Esta acción no se puede deshacer.`;
-        document.getElementById('delete-modal').style.display = 'flex';
+        deleteModal.style.display = 'flex';
     }
 }
 
 function closeDeleteModal() {
-    document.getElementById('delete-modal').style.display = 'none';
+    const deleteModal = document.getElementById('delete-modal');
+    if (deleteModal) {
+        deleteModal.style.display = 'none';
+    }
     taskToDelete = null;
 }
 
@@ -719,6 +812,8 @@ function confirmDelete() {
 
 // ===== DRAG & DROP =====
 function setupVerticalDrag(dragHandle, task, row) {
+    if (!dragHandle) return;
+    
     dragHandle.addEventListener('dragstart', (e) => {
         draggingTaskId = task.id;
         row.classList.add('dragging-vertical');
@@ -774,7 +869,7 @@ function setupTaskDrag(element, task) {
         
         startX = e.clientX;
         const unitWidth = getUnitWidth();
-        startLeft = parseInt(element.style.left);
+        startLeft = parseInt(element.style.left) || 0;
         element.classList.add('dragging');
 
         function onMouseMove(e) {
@@ -864,8 +959,11 @@ function updateDateRangeDisplay() {
         timelineTitle = `${currentStartDate.getFullYear()} - ${endDate.getFullYear()}`;
     }
 
-    document.getElementById('current-range').textContent = displayText;
-    document.getElementById('timeline-title').textContent = timelineTitle;
+    const currentRangeEl = document.getElementById('current-range');
+    const timelineTitleEl = document.getElementById('timeline-title');
+    
+    if (currentRangeEl) currentRangeEl.textContent = displayText;
+    if (timelineTitleEl) timelineTitleEl.textContent = timelineTitle;
 }
 
 function getCompactMonthRange(startDate, endDate) {
