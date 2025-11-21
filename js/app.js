@@ -138,6 +138,77 @@ document.addEventListener('DOMContentLoaded', function() {
     renderTimeline();
 });
 
+// ===== EXPORTACIÓN A PNG =====
+async function exportToPNG() {
+    const exportBtn = document.querySelector('.export-btn');
+    const originalText = exportBtn.innerHTML;
+    
+    try {
+        // Cambiar estado del botón
+        exportBtn.disabled = true;
+        exportBtn.classList.add('exporting');
+        exportBtn.innerHTML = '⏳ Generando...';
+        
+        // Crear el clon del diagrama
+        const clone = await createExpandedClone();
+        
+        // Generar la imagen
+        const canvas = await html2canvas(clone, {
+            backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg-secondary'),
+            scale: 2, // Mejor calidad
+            useCORS: true,
+            allowTaint: true,
+            logging: false
+        });
+        
+        // Convertir a PNG y descargar
+        const link = document.createElement('a');
+        link.download = `GanttRoll-${projectName}-${new Date().toISOString().split('T')[0]}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        
+        // Limpiar
+        document.body.removeChild(clone);
+        
+    } catch (error) {
+        console.error('Error al exportar:', error);
+        alert('Error al generar la imagen. Intenta nuevamente.');
+    } finally {
+        // Restaurar botón
+        exportBtn.disabled = false;
+        exportBtn.classList.remove('exporting');
+        exportBtn.innerHTML = originalText;
+    }
+}
+
+function createExpandedClone() {
+    return new Promise((resolve) => {
+        // Clonar el contenedor principal
+        const original = document.querySelector('.gantt-timeline');
+        const clone = original.cloneNode(true);
+        
+        // Estilos para expandir el clon
+        clone.style.position = 'fixed';
+        clone.style.left = '0';
+        clone.style.top = '0';
+        clone.style.width = original.offsetWidth + 'px';
+        clone.style.height = 'auto';
+        clone.style.overflow = 'visible';
+        clone.style.zIndex = '-1000';
+        clone.style.opacity = '0.99'; // Para forzar renderizado
+        
+        // Remover cualquier limitación de altura máxima
+        clone.style.maxHeight = 'none';
+        clone.style.minHeight = 'auto';
+        
+        // Agregar al documento (fuera de pantalla)
+        document.body.appendChild(clone);
+        
+        // Pequeño delay para asegurar renderizado
+        setTimeout(() => resolve(clone), 100);
+    });
+}
+
 // ===== GESTIÓN DE TEMA =====
 function initializeTheme() {
     const themeToggle = document.getElementById('theme-toggle');
