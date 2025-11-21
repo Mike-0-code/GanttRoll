@@ -3,19 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GanttRoll</title>
+    <title>GanttRoll - Tu diagrama de Gantt simple</title>
+    <meta name="description" content="GanttRoll - Organiza tus proyectos con un diagrama de Gantt simple y visual. Gestión de tareas con arrastrar y soltar, múltiples escalas de tiempo y diseño tipo piano roll.">
+    <meta name="keywords" content="gantt, diagrama, proyectos, tareas, organización, productividad, gestión de proyectos">
+    <meta name="author" content="Mike-0-code">
     <link rel="stylesheet" href="styles/main.css">
 </head>
-<body>
+<body class="dark-theme">
     <!-- Barra superior -->
     <header class="top-bar">
         <h1 class="app-name">GanttRoll</h1>
         <div class="header-actions">
-        <button class="info-btn" aria-label="Información de almacenamiento" title="Información de almacenamiento">
-            ⓘ
-        </button>
+            <button class="info-btn" aria-label="Información de almacenamiento" title="Información de almacenamiento">
+                ⓘ
+            </button>
         </div>   
     </header>
+
     <div class="container">
         <div class="controls">
             <div class="scale-selector">
@@ -24,20 +28,20 @@
                 <button class="scale-btn" data-scale="months">Meses</button>
             </div>
             
-            <button id="add-task-btn">+ Nueva Tarea</button>
+            <button id="add-task-btn" class="primary-btn">+ Nueva Tarea</button>
             
             <div class="date-navigation">
-                <button id="prev-date-btn">←</button>
+                <button id="prev-date-btn" class="nav-btn">←</button>
                 <div class="date-display" id="current-range">15 - 28 Enero 2024</div>
-                <button id="next-date-btn">→</button>
-                <button id="today-btn">Hoy</button>
+                <button id="next-date-btn" class="nav-btn">→</button>
+                <button id="today-btn" class="secondary-btn">Hoy</button>
             </div>
         </div>
 
         <div class="gantt-timeline">
             <div class="timeline-header">
-                <div>Tareas</div>
-                <div id="timeline-title">Enero 2024</div>
+                <div class="timeline-title">Tareas</div>
+                <div class="timeline-range" id="timeline-title">Enero 2024</div>
             </div>
             
             <div class="time-scale-container">
@@ -50,7 +54,7 @@
     </div>
 
     <!-- Modal de confirmación para eliminar tarea -->
-    <div class="modal" id="delete-modal">
+    <div id="delete-modal" class="modal">
         <div class="modal-content">
             <h2>¿Eliminar tarea?</h2>
             <p id="delete-task-name">¿Estás seguro de que quieres eliminar esta tarea? Esta acción no se puede deshacer.</p>
