@@ -414,7 +414,10 @@ function setupEventListeners() {
     const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
     const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
     const projectNameInput = document.getElementById('project-name-input');
+
+    console.log('Configurando event listeners...'); // DEBUG
     const resetBtn = document.getElementById('reset-btn');
+    console.log('Reset button found:', resetBtn); // DEBUG
     
     if (addTaskBtn) addTaskBtn.addEventListener('click', addTask);
     if (prevDateBtn) prevDateBtn.addEventListener('click', () => changeDateRange(-1));
