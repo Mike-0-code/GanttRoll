@@ -54,10 +54,10 @@ const scales = {
     },
     weeks: { 
         unit: 'week', 
-        unitsToShow: 8,
+        unitsToShow: 12,
         navigate: (date, direction) => {
             const newDate = new Date(date);
-            newDate.setDate(date.getDate() + (direction * 56));
+            newDate.setDate(date.getDate() + (direction * 84));
             return newDate;
         }
     },
