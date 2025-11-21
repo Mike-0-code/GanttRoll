@@ -414,6 +414,7 @@ function setupEventListeners() {
     const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
     const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
     const projectNameInput = document.getElementById('project-name-input');
+    const resetBtn = document.getElementById('reset-btn');
     
     if (addTaskBtn) addTaskBtn.addEventListener('click', addTask);
     if (prevDateBtn) prevDateBtn.addEventListener('click', () => changeDateRange(-1));
@@ -421,6 +422,7 @@ function setupEventListeners() {
     if (todayBtn) todayBtn.addEventListener('click', goToToday);
     if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
     if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', confirmDelete);
+    if (resetBtn) resetBtn.addEventListener('click', openResetModal);
     
     setupResetModal();
     
