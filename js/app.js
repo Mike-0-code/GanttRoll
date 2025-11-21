@@ -1,3 +1,38 @@
+// ===== LOCALSTORAGE =====
+function saveToStorage() {
+    const projectData = {
+        tasks: tasks,
+        currentScale: currentScale,
+        currentStartDate: currentStartDate.toISOString(),
+        version: '1.0'
+    };
+    localStorage.setItem('ganttroll-data', JSON.stringify(projectData));
+}
+
+function loadFromStorage() {
+    const saved = localStorage.getItem('ganttroll-data');
+    if (saved) {
+        try {
+            const projectData = JSON.parse(saved);
+            
+            if (projectData.tasks && Array.isArray(projectData.tasks)) {
+                tasks = projectData.tasks;
+            }
+            
+            if (projectData.currentScale && scales[projectData.currentScale]) {
+                currentScale = projectData.currentScale;
+            }
+            
+            if (projectData.currentStartDate) {
+                currentStartDate = new Date(projectData.currentStartDate);
+            }
+            
+        } catch (error) {
+            console.error('Error loading saved data:', error);
+        }
+    }
+}
+
 // ===== ESTADO GLOBAL =====
 let currentScale = 'days';
 let currentStartDate = new Date();
@@ -75,8 +110,9 @@ const scales = {
 // ===== INICIALIZACIÓN =====
 document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
+    loadFromStorage();
     setupEventListeners();
-    setupInfoTooltip(); // Descomenta si quieres usar el tooltip
+    setupInfoTooltip(); 
     renderTimeline();
 });
 
@@ -215,12 +251,14 @@ function changeScale(scale) {
     document.querySelectorAll('.scale-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelector(`[data-scale="${scale}"]`).classList.add('active');
     renderTimeline();
+    saveToStorage();
 }
 
 function changeDateRange(direction) {
     const scale = scales[currentScale];
     currentStartDate = scale.navigate(currentStartDate, direction);
     renderTimeline();
+    saveToStorage();
 }
 
 function goToToday() {
@@ -229,6 +267,7 @@ function goToToday() {
         currentStartDate.setDate(currentStartDate.getDate() - currentStartDate.getDay() + 1);
     }
     renderTimeline();
+    saveToStorage();
 }
 
 function addTask() {
@@ -247,6 +286,7 @@ function addTask() {
     
     tasks.push(newTask);
     renderTimeline();
+    saveToStorage();
 }
 
 function updateTaskColor(taskId, color) {
@@ -254,6 +294,7 @@ function updateTaskColor(taskId, color) {
     if (task) {
         task.color = color;
         renderTimeline();
+        saveToStorage();
     }
 }
 
@@ -262,6 +303,7 @@ function updateTaskName(taskId, newName) {
     if (task && newName.trim() !== '') {
         task.name = newName.trim();
         renderTimeline();
+        saveToStorage();
     }
 }
 
@@ -413,6 +455,7 @@ function confirmDelete() {
         tasks = tasks.filter(t => t.id !== taskToDelete);
         renderTimeline();
         closeDeleteModal();
+        saveToStorage();
     }
 }
 
@@ -462,6 +505,7 @@ function moveTaskToPosition(draggingId, targetId) {
     const [draggingTask] = tasks.splice(draggingIndex, 1);
     tasks.splice(targetIndex, 0, draggingTask);
     renderTimeline();
+    saveToStorage();
 }
 
 function setupTaskDrag(element, task) {
@@ -492,6 +536,7 @@ function setupTaskDrag(element, task) {
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
             element.classList.remove('dragging');
+            saveToStorage();
         }
 
         document.addEventListener('mousemove', onMouseMove);
@@ -524,6 +569,7 @@ function startResize(e, task, direction) {
     function onMouseUp() {
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
+        saveToStorage();
     }
 
     document.addEventListener('mousemove', onMouseMove);
