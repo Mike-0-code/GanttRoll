@@ -12,6 +12,26 @@ body {
     line-height: 1.5;
 }
 
+.app-header {
+    padding: 15px 0;
+    background: transparent;
+    margin-bottom: 10px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+}
+
+.app-logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(90deg, #7e57c2, #4caf50);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 .container {
     max-width: 1400px;
     margin: 0 auto;
