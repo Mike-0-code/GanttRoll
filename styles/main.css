@@ -454,6 +454,7 @@ body.light-theme .project-char-counter {
     gap: var(--spacing-md);
     margin-bottom: var(--spacing-md);
     font-weight: 600;
+    padding-left: 3px;
 }
 
 .timeline-title, .timeline-range {
