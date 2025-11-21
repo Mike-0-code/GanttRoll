@@ -494,4 +494,43 @@ function updateDateRangeDisplay() {
         const startWeek = getWeekNumber(currentStartDate);
         const endWeek = getWeekNumber(endDate);
         displayText = `S${startWeek} - S${endWeek}`;
-        timelineTitle = getMonthRangeTitle(currentStartDate,
+        timelineTitle = getMonthRangeTitle(currentStartDate, endDate);
+        
+    } else {
+        const endDate = new Date(currentStartDate);
+        endDate.setMonth(currentStartDate.getMonth() + scale.unitsToShow - 1);
+        
+        displayText = getCompactMonthRange(currentStartDate, endDate);
+        timelineTitle = `${currentStartDate.getFullYear()} - ${endDate.getFullYear()}`;
+    }
+
+    document.getElementById('current-range').textContent = displayText;
+    document.getElementById('timeline-title').textContent = timelineTitle;
+}
+
+function getCompactMonthRange(startDate, endDate) {
+    const startYear = startDate.getFullYear();
+    const endYear = endDate.getFullYear();
+    
+    if (startYear === endYear) {
+        const startMonth = startDate.toLocaleDateString('es-ES', { month: 'short' });
+        const endMonth = endDate.toLocaleDateString('es-ES', { month: 'short' });
+        return `${startMonth} - ${endMonth} ${startYear}`;
+    } else {
+        const startStr = startDate.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+        const endStr = endDate.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+        return `${startStr} - ${endStr}`;
+    }
+}
+
+function getMonthRangeTitle(startDate, endDate) {
+    if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
+        return startDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    } else {
+        return `${startDate.toLocaleDateString('es-ES', { month: 'long' })} - ${endDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+    }
+}
+
+function formatDate(date) {
+    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+}
